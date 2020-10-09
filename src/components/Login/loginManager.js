@@ -1,6 +1,6 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
-import firebaseConfig from './firebase.config';
+import firebaseConfig from "../../firebase.config";
 
 export const initializeLoginFramework = () => {
     if (firebase.apps.length === 0) {
@@ -20,12 +20,21 @@ export const handleGoogleSignIn = () => {
                 photo: photoURL,
                 success:true
             }
+           setUserToken();
             return signedInUser;
         })
         .catch(error => {
             console.log(error);
             console.log(error.message);
         })
+}
+const setUserToken =()=>{
+  firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+  .then(function(idToken) {
+    sessionStorage.setItem('token',idToken)
+  }).catch(function(error) {
+    // Handle error
+  });
 }
 export const handleSignOut = () => {
     return firebase.auth().signOut()

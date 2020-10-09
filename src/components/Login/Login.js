@@ -2,8 +2,11 @@ import React, { useState, useContext } from 'react';
 import { UserContext } from '../../App';
 import { useHistory, useLocation } from 'react-router-dom/cjs/react-router-dom.min';
 import { createUserWithEmailAndPassword, handleGoogleSignIn, handleSignOut, initializeLoginFramework, signInWithEmailAndPassword } from './loginManager';
+import googleIcon from '../../images/google.png';
 
 function Login() {
+  document.title='Login';
+  
   const [newUser, setNewUser] = useState(false);
   const [user, setUser] = useState({
     isSignedIn: false,
@@ -81,7 +84,7 @@ function Login() {
     <div style={{ textAlign: 'center' }}>
       {
         user.isSignedIn ? <button onClick={signOut}>Sign Out</button>
-          : <button onClick={googleSignIn}>Sign In</button>
+          : <button onClick={googleSignIn}><img src={googleIcon} alt="google"/>Sign In with Google</button>
       }
       {
         user.isSignedIn && <div>

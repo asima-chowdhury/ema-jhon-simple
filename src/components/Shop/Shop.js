@@ -1,31 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import fakeData from '../../fakeData';
 import './Shop.css';
 import Product from '../Product/Product';
 import Cart from '../Cart/Cart';
 import { addToDatabaseCart, getDatabaseCart } from '../../utilities/databaseManager';
 import { Link } from 'react-router-dom';
+import loading from '../../images/loading.gif'
 
 const Shop = () => {
-    const first10 = fakeData.slice(0, 10);
-    const [products, setProducts] = useState(first10);
+    document.title = 'Shop More';
+    const [products, setProducts] = useState([]);
+    const [search, setSearch] = useState('');
 
     const [cart, setCart] = useState([]);
 
     useEffect(() => {
+        fetch('http://localhost:5000/products?search=' + search)
+            .then(res => res.json())
+            .then(data => setProducts(data))
+    }, [search])
+    useEffect(() => {
         //cart
         const savedCart = getDatabaseCart();
         const productKeys = Object.keys(savedCart);
-        console.log(productKeys);
 
-        const previousCart = productKeys.map(existingKey => {
-            const product = fakeData.find(pd => pd.key === existingKey);
-            console.log(existingKey, savedCart[existingKey]);
-            product.quantity = savedCart[existingKey];
-            return product;
-        });
-        console.log(previousCart);
-        setCart(previousCart);
+        fetch('http://localhost:5000/productsByKeys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productKeys)
+        })
+            .then(res => res.json())
+            .then(data => setCart(data))
     }, [])
 
     const handleAddProduct = (product) => {
@@ -48,9 +52,21 @@ const Shop = () => {
         setCart(newCart);
         addToDatabaseCart(product.key, count);
     }
+
+    const handleSearch = event => {
+        setSearch(event.target.value)
+    }
     return (
         <div className="twin-container">
             <div className="product-container">
+                {
+                    products.length === 0 && 
+                    // <div class="spinner-grow text-danger" role="status">
+                    //     <span class="sr-only">Loading...</span>
+                    // </div>
+                    <img src={loading} alt="loading"/>
+                }
+                <input type="text" onBlur={handleSearch} placeholder="search....." />
                 {
                     products.map(pd =>
                         <Product
